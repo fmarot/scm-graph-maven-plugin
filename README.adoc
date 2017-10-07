@@ -1,0 +1,14 @@
+:toc: macro
+
+image:https://travis-ci.org/fmarot/nativedependencies-maven.svg?branch=master["Build Status", link="https://travis-ci.org/fmarot/nativedependencies-maven"]
+
+toc::[]
+
+= Current Status
+
+work in progress (ie "do not try this at home !)
+
+
+= License
+
+Apache License 2.0 
