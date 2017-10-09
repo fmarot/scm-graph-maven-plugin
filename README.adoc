@@ -7,7 +7,7 @@ toc::[]
 = Current Status
 
 work in progress (ie "do not try this at home !)
-
+TODO: test with "Maven Invoker Plugin" instead of the fucked up maven-plugin-testing-harness...
 
 = License
 
