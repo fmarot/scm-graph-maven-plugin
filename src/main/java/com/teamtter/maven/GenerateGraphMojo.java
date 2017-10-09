@@ -1,9 +1,11 @@
 package com.teamtter.maven;
 
+import java.util.List;
 import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Scm;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -23,13 +25,9 @@ import org.apache.maven.project.ProjectBuildingResult;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;;
 
-
 /** Unpacks native dependencies */
 @Mojo(name = "generate", /** the goal */
-	threadSafe = true,
-	defaultPhase = LifecyclePhase.COMPILE,
-	requiresDependencyResolution = ResolutionScope.TEST,
-	requiresProject = true)
+		threadSafe = true, defaultPhase = LifecyclePhase.COMPILE, requiresDependencyResolution = ResolutionScope.TEST, requiresProject = true)
 @Slf4j
 public class GenerateGraphMojo extends AbstractMojo {
 
@@ -42,15 +40,18 @@ public class GenerateGraphMojo extends AbstractMojo {
 	private boolean skip;
 
 	@Component
-    private ProjectBuilder projectBuilder;
-	
-	/** holds various parameters like location of the remote / local repositories, etc */
-    @Parameter(defaultValue = "${session}", readonly = true, required = true)
-    private MavenSession session;
+	private ProjectBuilder projectBuilder;
 
-//	@Component
-//	@Setter
-//	private IArtifactHandler artifactHandler;
+	/**
+	 * holds various parameters like location of the remote / local repositories,
+	 * etc
+	 */
+	@Parameter(defaultValue = "${session}", readonly = true, required = true)
+	private MavenSession session;
+
+	// @Component
+	// @Setter
+	// private IArtifactHandler artifactHandler;
 
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -59,7 +60,7 @@ public class GenerateGraphMojo extends AbstractMojo {
 		} else {
 			try {
 				generateGraph();
-			}catch (Exception e) {
+			} catch (Exception e) {
 				throw new MojoExecutionException("Unexpected error", e);
 			}
 		}
@@ -77,13 +78,20 @@ public class GenerateGraphMojo extends AbstractMojo {
 			MavenProject dependencyProject = projectBuildResult.getProject();
 			Scm scm = dependencyProject.getScm();
 
-			log.info("{}", scm);
+			String scmUrl = scm.getDeveloperConnection();
+			if (scmUrl == null) {
+				scmUrl = scm.getConnection();
+			}
+			if (scmUrl == null) {
+				scmUrl = scm.getUrl();
+			}
+
+			log.info("{} scm: {}", dependencyProject.getArtifactId(), scmUrl);
 
 			// TODO: recursivity For The Win !
 
-		};
+		}
 
 	}
-
 
 }
