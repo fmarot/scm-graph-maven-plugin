@@ -4,9 +4,12 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -28,9 +31,14 @@ import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.jgraph.JGraph;
+import org.jgrapht.DirectedGraph;
+import org.jgrapht.Graph;
 import org.jgrapht.ext.JGraphModelAdapter;
 import org.jgrapht.graph.DefaultEdge;
 
+import com.jgraph.layout.JGraphFacade;
+import com.jgraph.layout.JGraphLayout;
+import com.jgraph.layout.hierarchical.JGraphHierarchicalLayout;
 import com.teamtter.maven.graph.data.SCMRepo;
 import com.teamtter.maven.graph.data.SCMRepoRepository;
 
@@ -93,8 +101,33 @@ public class GenerateGraphMojo extends AbstractMojo implements Contextualizable 
 			// TODO: recursivity For The Win !
 		}
 
-		JGraphModelAdapter<SCMRepo, DefaultEdge> graphAdapter = new JGraphModelAdapter<>(repo.getGraph());
+		DirectedGraph<SCMRepo, DefaultEdge> graph = repo.getGraph();
+		generateGraphImage(graph);
+	}
+
+	protected static void generateGraphImage(Graph<?, ?> graph) throws IOException {
+		JGraphModelAdapter<?, ?> graphAdapter = new JGraphModelAdapter<>(graph);
 		JGraph jGraph = new JGraph(graphAdapter);
+		//		jGraph.setBounds(0, 0, 900, 600);
+		//		jGraph.doLayout();
+		//		jGraph.repaint();
+
+		JFrame frame = new JFrame();
+
+		JGraphLayout layout = new JGraphHierarchicalLayout(); // or whatever layouting algorithm
+		JGraphFacade facade = new JGraphFacade(jGraph);
+		layout.run(facade);
+		Map nested = facade.createNestedMap(false, false);
+		jGraph.getGraphLayoutCache().edit(nested);
+		jGraph.setSize(600, 900);
+		JScrollPane sp = new JScrollPane(jGraph);
+
+		frame.add(sp);
+		frame.setSize(600, 900);
+		frame.pack();
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		BufferedImage image = jGraph.getImage(Color.WHITE, 5);
 		ImageIO.write(image, "PNG", new File("out.png"));
 	}
