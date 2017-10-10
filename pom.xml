@@ -3,8 +3,9 @@
 
 	<groupId>com.teamtter.maven</groupId>
 	<artifactId>scm-graph-maven-plugin</artifactId>
-	<packaging>maven-plugin</packaging>
 	<version>1.0.0-SNAPSHOT</version>
+
+	<packaging>maven-plugin</packaging>
 	<name>scm-graph-maven-plugin Maven Mojo</name>
 	<url>http://maven.apache.org</url>
 
@@ -13,20 +14,18 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.version>3.5.0</maven.version>
 
-
 		<compiler.source>1.8</compiler.source>
 		<compiler.target>1.8</compiler.target>
 
 		<compiler.plugin.version>3.3</compiler.plugin.version>
 		<resources.plugin.version>2.7</resources.plugin.version>
 		<plugin.plugin.version>3.4</plugin.plugin.version>
-		<plexus.component.metadata.version>1.5.5</plexus.component.metadata.version>
 		<source.plugin.version>2.1.2</source.plugin.version>
 		<javadoc.plugin.version>2.7</javadoc.plugin.version>
 		<invoker.plugin.version>2.0.0</invoker.plugin.version>
 
+		<jgrapht.version>1.0.1</jgrapht.version>
 		<slf4j.version>1.7.5</slf4j.version>
-
 	</properties>
 
 
@@ -65,12 +64,44 @@
 		</repository>
 	</distributionManagement>
 
+	<!-- 
+		Info: you can have details about this plugin by running "mvn help:describe -DartifactId=scm-graph-maven-plugin -DgroupId=com.teamtter.maven  -Ddetail"
+	 -->
+	 
 	<build>
+
 		<plugins>
+			<plugin>
+				<!-- force a recent version to prevent "Execution default-descriptor of goal org.apache.maven.plugins:maven-plugin-plugin:3.2:descriptor failed.: NullPointerException" -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+			</plugin>
 		</plugins>
+
 		<pluginManagement>
 
 			<plugins>
+
+				<plugin>
+					<!-- force a recent version to prevent "Execution default-descriptor of goal org.apache.maven.plugins:maven-plugin-plugin:3.2:descriptor failed.: NullPointerException" -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-plugin-plugin</artifactId>
+					<version>3.5</version>
+					<executions>
+						<execution>
+							<id>default-descriptor</id>
+							<phase>process-classes</phase>
+						</execution>
+						<execution>
+							<!-- if you want to generate help goal -->
+							<id>help-goal</id>
+							<goals>
+								<goal>helpmojo</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${compiler.plugin.version}</version>
@@ -121,29 +152,36 @@
 	</profiles>
 
 	<dependencies>
+
+		<!--
+		<dependency>
+			force a recent version to prevent "Execution default-descriptor of goal org.apache.maven.plugins:maven-plugin-plugin:3.2:descriptor failed: 8704"
+			Caused by: java.lang.ArrayIndexOutOfBoundsException: 8704
+			<artifactId>asm-commons</artifactId>
+			<groupId>org.ow2.asm</groupId>
+			<version>6.0</version>
+		</dependency>
+		 -->
+  
 		<!-- Maven plugin specific -->
 
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.apache.maven.plugins</groupId> -->
+<!-- 			<artifactId>maven-plugin-plugin</artifactId> -->
+<!-- 			<version>3.5</version> -->
+<!-- 		</dependency> -->
 		<dependency>
-			<groupId>org.apache.maven.plugin-tools</groupId>
-			<artifactId>maven-plugin-annotations</artifactId>
-			<version>3.5</version>
-			<scope>provided</scope> <!-- It comes from maven itself -->
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-core</artifactId>
+			<version>${maven.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-artifact</artifactId>
 			<version>${maven.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-plugin-api</artifactId>
-			<version>${maven.version}</version>
-		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.apache.maven</groupId> -->
-<!-- 			<artifactId>maven-project</artifactId> -->
-<!-- 			<version>2.2.1</version> -->
-<!-- 		</dependency> -->
+
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-model</artifactId>
@@ -151,16 +189,17 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-core</artifactId>
+			<artifactId>maven-plugin-api</artifactId>
 			<version>${maven.version}</version>
 		</dependency>
 
-
-		<!-- <dependency> gives access to "BuildContext" - - > <groupId>org.sonatype.plexus</groupId> 
-			<artifactId>plexus-build-api</artifactId> <version>0.0.7</version> </dependency> 
-			<dependency> <groupId>org.codehaus.plexus</groupId> <artifactId>plexus-component-annotations</artifactId> 
-			<version>1.0-beta-3.0.5</version> </dependency> -->
-
+		<dependency>
+			<groupId>org.apache.maven.plugin-tools</groupId>
+			<artifactId>maven-plugin-annotations</artifactId>
+			<version>3.5</version>
+			<scope>provided</scope> <!-- It comes from maven itself -->
+		</dependency>
+		
 		<!-- Misc -->
 
 		<dependency>
@@ -181,6 +220,24 @@
 			<version>1.16.16</version>
 		</dependency>
 
+		<!-- business logic related -->
+
+		<dependency>
+			<groupId>org.jgrapht</groupId>
+			<artifactId>jgrapht-core</artifactId>
+			<version>${jgrapht.version}</version>
+		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>org.jgrapht</groupId> -->
+<!-- 			<artifactId>jgrapht-io</artifactId> -->
+<!-- 			<version>1.0.1</version> -->
+<!-- 		</dependency> -->
+		<dependency>
+			<groupId>org.jgrapht</groupId>
+			<artifactId>jgrapht-ext</artifactId>
+			<version>${jgrapht.version}</version>
+		</dependency>
+		
 		<!-- Test libs -->
 
 		<dependency>
@@ -189,21 +246,6 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
-<!-- 
-		<dependency>
-			<groupId>org.apache.maven</groupId>
-			<artifactId>maven-compat</artifactId>
-			<version>3.3.3</version>
-			<scope>test</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.maven.plugin-testing</groupId>
-			<artifactId>maven-plugin-testing-harness</artifactId>
-			<version>3.3.0</version>
-			<scope>test</scope>
-		</dependency>
- -->
 
 	</dependencies>
 
