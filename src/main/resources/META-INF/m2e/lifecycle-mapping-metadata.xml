@@ -1,19 +1,17 @@
+<!-- more info there: http://www.eclipse.org/m2e/documentation/m2e-making-maven-plugins-compat.html -->
 <lifecycleMappingMetadata>
 	<pluginExecutions>
 		<pluginExecution>
 			<pluginExecutionFilter>
+				<groupId>com.teamtter.maven</groupId>
+				<artifactId>scm-graph-maven-plugin</artifactId>
+				<versionRange>[1.0.0-SNAPSHOT,)</versionRange>
 				<goals>
-					<goal>copy</goal>
+					<goal>generate</goal>
 				</goals>
 			</pluginExecutionFilter>
 			<action>
-				<ignore/>
-				<!-- more info there: http://www.eclipse.org/m2e/documentation/m2e-making-maven-plugins-compat.html
-				<execute>
-					<runOnIncremental>false</runOnIncremental>
-					<runOnConfiguration>false</runOnConfiguration>
-				</execute>
-				 -->
+				<ignore></ignore>
 			</action>
 		</pluginExecution>
 	</pluginExecutions>
