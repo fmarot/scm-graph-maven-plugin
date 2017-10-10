@@ -1,0 +1,20 @@
+<lifecycleMappingMetadata>
+	<pluginExecutions>
+		<pluginExecution>
+			<pluginExecutionFilter>
+				<goals>
+					<goal>copy</goal>
+				</goals>
+			</pluginExecutionFilter>
+			<action>
+				<ignore/>
+				<!-- more info there: http://www.eclipse.org/m2e/documentation/m2e-making-maven-plugins-compat.html
+				<execute>
+					<runOnIncremental>false</runOnIncremental>
+					<runOnConfiguration>false</runOnConfiguration>
+				</execute>
+				 -->
+			</action>
+		</pluginExecution>
+	</pluginExecutions>
+</lifecycleMappingMetadata>
