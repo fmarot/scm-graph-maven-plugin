@@ -1,15 +1,8 @@
 package com.teamtter.maven.graph;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
-
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.execution.MavenSession;
@@ -27,20 +20,9 @@ import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingException;
 import org.apache.maven.project.ProjectBuildingRequest;
 import org.apache.maven.project.ProjectBuildingResult;
-import org.codehaus.plexus.context.Context;
-import org.codehaus.plexus.context.ContextException;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
-import org.jgraph.JGraph;
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.Graph;
-import org.jgrapht.ext.JGraphModelAdapter;
-import org.jgrapht.graph.DefaultEdge;
 
-import com.jgraph.layout.JGraphFacade;
-import com.jgraph.layout.JGraphLayout;
-import com.jgraph.layout.hierarchical.JGraphHierarchicalLayout;
-import com.teamtter.maven.graph.data.SCMRepo;
-import com.teamtter.maven.graph.data.SCMRepoRepository;
+import com.google.common.base.Strings;
+import com.teamtter.maven.graph.data.GraphModel;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;;
@@ -51,8 +33,9 @@ import lombok.extern.slf4j.Slf4j;;
 		defaultPhase = LifecyclePhase.VALIDATE,	//
 		requiresProject = true,					//
 		threadSafe = false,						//
+		requiresDependencyCollection = ResolutionScope.TEST,
 		requiresDependencyResolution = ResolutionScope.TEST)
-public class GenerateGraphMojo extends AbstractMojo implements Contextualizable {
+public class GenerateGraphMojo extends AbstractMojo {
 
 	@Parameter(defaultValue = "${project}", readonly = true)
 	@Setter
@@ -83,58 +66,31 @@ public class GenerateGraphMojo extends AbstractMojo implements Contextualizable 
 	}
 
 	private void generateGraph() throws ProjectBuildingException, IOException {
+		GraphModel model = new GraphModel(mavenProject);
+		fillInGraphModelRecurse(mavenProject, model, 0);
+
+		GraphBuilder graphBuilder = new JGraphTGraphBuilder(model);
+		graphBuilder.generateImage(new File("out.png"));
+	}
+
+	private void fillInGraphModelRecurse(MavenProject proj, GraphModel repo, int depth) throws ProjectBuildingException, IOException {
 		ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
+		log.info(Strings.repeat(" ", depth) + "Analyzing dependencies of {}", proj.getArtifactId());
 
-		SCMRepoRepository repo = new SCMRepoRepository(mavenProject);
-
-		Set<Artifact> dependencies = mavenProject.getArtifacts();
+		Set<Artifact> dependencies = proj.getArtifacts();
+		log.info(Strings.repeat(" ", depth) + "--> {} to be analyzed", dependencies.size());
 		for (Artifact dependency : dependencies) {
-			buildingRequest.setProject(null); // was it changed by previous calls ???
+			buildingRequest.setProject(null);
 			try {
 				ProjectBuildingResult projectBuildResult = projectBuilder.build(dependency, buildingRequest);
 				MavenProject dependencyProject = projectBuildResult.getProject();
-				repo.addDependency(mavenProject, dependencyProject);
+				repo.addDependency(proj, dependencyProject);
+				int newDepth = depth + 1;
+				fillInGraphModelRecurse(dependencyProject, repo, newDepth);
 			} catch (ProjectBuildingException e) {
 				log.error("Impossible to construct Project from dependency: {}", dependency.getArtifactId(), e);
 			}
-
-			// TODO: recursivity For The Win !
 		}
-
-		DirectedGraph<SCMRepo, DefaultEdge> graph = repo.getGraph();
-		generateGraphImage(graph);
-	}
-
-	protected static void generateGraphImage(Graph<?, ?> graph) throws IOException {
-		JGraphModelAdapter<?, ?> graphAdapter = new JGraphModelAdapter<>(graph);
-		JGraph jGraph = new JGraph(graphAdapter);
-		//		jGraph.setBounds(0, 0, 900, 600);
-		//		jGraph.doLayout();
-		//		jGraph.repaint();
-
-		JFrame frame = new JFrame();
-
-		JGraphLayout layout = new JGraphHierarchicalLayout(); // or whatever layouting algorithm
-		JGraphFacade facade = new JGraphFacade(jGraph);
-		layout.run(facade);
-		Map nested = facade.createNestedMap(false, false);
-		jGraph.getGraphLayoutCache().edit(nested);
-		jGraph.setSize(600, 900);
-		JScrollPane sp = new JScrollPane(jGraph);
-
-		frame.add(sp);
-		frame.setSize(600, 900);
-		frame.pack();
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-		BufferedImage image = jGraph.getImage(Color.WHITE, 5);
-		ImageIO.write(image, "PNG", new File("out.png"));
-	}
-
-	@Override
-	public void contextualize(Context context) throws ContextException {
-		log.info("XXXZZZAZERTY");
 	}
 
 }
