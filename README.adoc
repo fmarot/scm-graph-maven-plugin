@@ -16,6 +16,7 @@ flag ("To fix we probably need a different DependencyCollector in Aether, which 
 
 = TODO
 
+* detect git cycles
 * use special color for specific vertex (for exemple SCMRepo with no scm tag defined should be red ?)
 * add this plugin in all builds and to Jenkins JenkinsFile to be archived on each build
 * test with "Maven Invoker Plugin" instead of the fucked up maven-plugin-testing-harness...
