@@ -1,4 +1,4 @@
-package com.teamtter.maven.graph;
+package com.teamtter.maven.graph.builder;
 
 import java.io.File;
 

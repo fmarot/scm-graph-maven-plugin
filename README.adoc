@@ -1,14 +1,17 @@
 :toc: macro
 
-image:https://travis-ci.org/fmarot/nativedependencies-maven.svg?branch=master["Build Status", link="https://travis-ci.org/fmarot/nativedependencies-maven"]
 
 toc::[]
 
-= Current Status
 
-work in progress (ie "do not try this at home !)
-TODO: test with "Maven Invoker Plugin" instead of the fucked up maven-plugin-testing-harness...
+= Usage
 
-= License
+Should work best (ie more predictible) if you suffix your scm urls with ".git" (so we know exactly where to truncate).
+This is helpfull because a not-so-known "feature" of Maven is that every child modules sees it's artifactId appended at the end of
+the scm urls declared in it's parent pom :/
 
-Apache License 2.0 
+= TODO
+
+test with "Maven Invoker Plugin" instead of the fucked up maven-plugin-testing-harness...
+
+

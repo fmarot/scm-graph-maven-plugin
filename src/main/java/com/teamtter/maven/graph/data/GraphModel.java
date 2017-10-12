@@ -1,9 +1,11 @@
 package com.teamtter.maven.graph.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Scm;
 import org.apache.maven.project.MavenProject;
 
@@ -15,8 +17,6 @@ public class GraphModel {
 	@Getter
 	private List<SCMRepo>	repos	= new ArrayList<>();
 	private MavenProject	mainMavenProject;
-	//	@Getter
-	//	private DirectedGraph<SCMRepo, DefaultEdge>	graph	= new DefaultDirectedGraph<>(DefaultEdge.class);
 
 	public GraphModel(MavenProject mainMavenProject) {
 		this.mainMavenProject = mainMavenProject;
@@ -56,11 +56,9 @@ public class GraphModel {
 		Scm scm = mavenProject.getScm();
 		String scmUrl = null;
 		if (scm == null) {
-			log.warn("{}:{}:{} has no scm defined in its MavenProject !",
-					mavenProject.getGroupId(),
-					mavenProject.getArtifactId(),
-					mavenProject.getVersion());
-			scmUrl = mavenProject.getArtifactId();
+			String gavString = buildGAVString(mavenProject);
+			log.warn(gavString + " has no scm defined in its MavenProject !");
+			scmUrl = gavString;
 		} else {
 			scmUrl = scm.getDeveloperConnection();
 			if (scmUrl == null) {
@@ -69,10 +67,37 @@ public class GraphModel {
 			if (scmUrl == null) {
 				scmUrl = scm.getUrl();
 			}
+			scmUrl = cleanScmUrl(scmUrl);
 		}
+
+
 		log.info("{} scm: {}", mavenProject.getArtifactId(), scmUrl);
 
 		return scmUrl;
+	}
+
+	private String cleanScmUrl(String scmUrl) {
+
+		List<String> patternsToRemove = Arrays.asList("git:", "ssh://", "http://", "https://", "scm:", "git@");
+		for (String pattern : patternsToRemove) {
+			scmUrl = StringUtils.remove(scmUrl, pattern);
+		}
+
+		if (scmUrl.contains(".git")) {
+			scmUrl = StringUtils.substringBefore(scmUrl, ".git");
+		} else {
+			String[] parts = scmUrl.split("/");
+			if (parts.length >= 2) {
+				scmUrl = parts[0] + "/" + parts[1];
+			} else {
+				// keep original scmUrl as is...
+			}
+		}
+		return scmUrl;
+	}
+
+	private static String buildGAVString(MavenProject mavenProject) {
+		return mavenProject.getGroupId() + ":" + mavenProject.getArtifactId() + ":" + mavenProject.getVersion();
 	}
 
 	public void addDependency(MavenProject from, MavenProject to) {
@@ -83,6 +108,10 @@ public class GraphModel {
 		SCMRepo repoTo = initOrGetRepo(to);
 		MavenGAV mavenGavTo = computeMavenGav(to);
 		repoFrom.addDependency(mavenGavTo);
+		
+		if (mavenGavTo.getArtifactId().contains("core-gui")) {
+			log.warn("core-gui:: {} --> {}", mavenGavFrom, mavenGavTo);
+		}
 
 		repoFrom.addDependencyTo(repoTo);
 	}

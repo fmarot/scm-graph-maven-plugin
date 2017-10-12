@@ -4,7 +4,8 @@ import java.io.File;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.Multigraph;
-import org.junit.Test;
+
+import com.teamtter.maven.graph.builder.JGraphTGraphBuilder;
 
 public class GenerateGraphMojoTest {
 
@@ -12,7 +13,7 @@ public class GenerateGraphMojoTest {
 		new GenerateGraphMojoTest().testGenerateGraphImage();
 	}
 	
-	@Test
+//	@Test
 	public void testGenerateGraphImage() throws Exception {
 		Multigraph<String, DefaultWeightedEdge> graph = new Multigraph<>(DefaultWeightedEdge.class);
 	    graph.addVertex("v1");
@@ -33,7 +34,7 @@ public class GenerateGraphMojoTest {
 	    if (!outputFile.delete()) {
 	    	throw new Exception("Impossible to delete outputFile " + outputFile);
 	    }
-		JGraphTGraphBuilder.generateImageFromGraph(outputFile, graph);
+		JGraphTGraphBuilder.generateJGraphXImageFromGraph(outputFile, graph);
 	}
 
 }

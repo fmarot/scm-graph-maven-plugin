@@ -7,20 +7,18 @@ import java.util.Set;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
 
-@ToString(of = { "repo" })
-@EqualsAndHashCode(of = { "repo" })
+@EqualsAndHashCode(of = { "filteredRepoUrl" })
 public class SCMRepo {
-
-	private String			repo;
+	@Getter
+	private String			filteredRepoUrl;
 
 	private List<MavenGAV>	gavs			= new ArrayList<>();
 	@Getter
 	private Set<SCMRepo>	referencedRepo	= new HashSet<>();
 
-	public SCMRepo(String repo) {
-		this.repo = repo;
+	public SCMRepo(String filteredRepoUrl) {
+		this.filteredRepoUrl = filteredRepoUrl;
 	}
 
 	public void addDependency(MavenGAV gav) {
@@ -28,10 +26,15 @@ public class SCMRepo {
 	}
 
 	public boolean matchesUrl(String url) {
-		return repo.equals(url);
+		return filteredRepoUrl.equals(url);
 	}
 
 	public void addDependencyTo(SCMRepo repoTo) {
 		referencedRepo.add(repoTo);
+	}
+	
+	@Override
+	public String toString() {
+		return getFilteredRepoUrl();
 	}
 }
