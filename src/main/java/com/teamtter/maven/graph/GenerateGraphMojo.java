@@ -2,10 +2,11 @@ package com.teamtter.maven.graph;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -28,14 +29,11 @@ import org.apache.maven.shared.dependency.graph.DependencyNode;
 import org.apache.maven.shared.dependency.graph.traversal.DependencyNodeVisitor;
 
 import com.teamtter.maven.graph.builder.GraphBuilder;
-import com.teamtter.maven.graph.builder.JGraphTGraphBuilder;
 import com.teamtter.maven.graph.data.GraphModel;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;;
+import lombok.Setter;;
 
 /** Generates a picture/graph of the dependencies considering only their original scm repository */
-@Slf4j
 @Mojo(name = "generate", // the goal
 		defaultPhase = LifecyclePhase.VALIDATE,	//
 		requiresProject = true,					//
@@ -57,6 +55,10 @@ public class GenerateGraphMojo extends AbstractMojo {
 	@Component(hint = "default")
 	private DependencyGraphBuilder	dependencyGraphBuilder;
 
+	@Setter
+	@Component
+	private GraphBuilder			graphBuilder;
+
 	/** Holds various parameters like location of the remote / local repositories, etc... */
 	@Parameter(defaultValue = "${session}", readonly = true, required = true)
 	private MavenSession			session;
@@ -68,17 +70,22 @@ public class GenerateGraphMojo extends AbstractMojo {
 	/** Only the scm containing one of those token will be displayed in the graph. */
 	@Parameter
 	@Setter
-	private List<String>			acceptedUrlFilters	= new ArrayList<>();
+	private Set<String>				acceptedUrlFilters	= new HashSet<>();
 
 	/** Name of the file to be created in ${project.build.directory} */
 	@Parameter
 	@Setter
 	private String					pngFileName			= "scmDependencyGraph.png";
 
+	/** Strings that will be stripped from the repo name in the graph, making it clearer */
+	@Parameter
+	@Setter
+	private Set<String>				strippedSubstrings	= new HashSet<>();
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		if (skip) {
-			log.info("Skipping execution due to 'skip' == true");
+			getLog().info("Skipping execution due to 'skip' == true");
 		} else {
 			try {
 				generateGraph();
@@ -100,7 +107,7 @@ public class GenerateGraphMojo extends AbstractMojo {
 
 		DependencyNodeVisitor visitor = new DependencyNodeVisitor() {
 			private Map<DependencyNode, MavenProject> nodesToProjectCache = new HashMap<>();
-			
+
 			@Override
 			public boolean visit(DependencyNode node) {
 				if (node.getParent() != null) {
@@ -110,7 +117,7 @@ public class GenerateGraphMojo extends AbstractMojo {
 
 						model.addDependency(mavenProjectFrom, mavenProjectTo);
 					} catch (ProjectBuildingException e) {
-						log.error("Impossible to construct Project from dependency: {}", node.getArtifact().getArtifactId(), e);
+						getLog().error("Impossible to construct Project from dependency: " + node.getArtifact().getArtifactId(), e);
 					}
 				}
 				return true;
@@ -137,9 +144,9 @@ public class GenerateGraphMojo extends AbstractMojo {
 		};
 		rootNode.accept(visitor);	// will fill-in the 'model'
 
-		GraphBuilder graphBuilder = new JGraphTGraphBuilder(model, acceptedUrlFilters);
 		String buildDirectory = mavenProject.getBuild().getDirectory();
-		graphBuilder.generateImage(new File(buildDirectory, pngFileName));
+		File outputPngFile = new File(buildDirectory, pngFileName);
+		graphBuilder.generateImage(model, acceptedUrlFilters, strippedSubstrings, outputPngFile);
 	}
 
 }

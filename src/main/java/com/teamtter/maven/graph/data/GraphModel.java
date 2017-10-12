@@ -25,7 +25,9 @@ public class GraphModel {
 		MavenGAV mavenGav = computeMavenGav(mainMavenProject);
 		repo.addDependency(mavenGav);
 	}
-
+	
+	// TODO: the SCMRepo object should encapsulate the full info (all scm content + GAV Info
+	// so that we can decide later on how we display it...
 	private SCMRepo initOrGetRepo(MavenProject mavenProject) {
 		String scmUrl = computeScm(mavenProject);
 
