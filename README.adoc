@@ -10,6 +10,10 @@ Should work best (ie more predictible) if you suffix your scm urls with ".git" (
 This is helpfull because a not-so-known "feature" of Maven is that every child modules sees it's artifactId appended at the end of
 the scm urls declared in it's parent pom :/
 
+Id does not display the FULL tree because we only got the 'resolved' dependencies. This means that if A->B->C and A->C we 
+will not see B->C in the graph. For more info, refere to the dependency:tree plugin and it's comments regarding the "verbose"
+flag ("To fix we probably need a different DependencyCollector in Aether, which doesn't remove nodes which have already been resolved.").
+
 = TODO
 
 test with "Maven Invoker Plugin" instead of the fucked up maven-plugin-testing-harness...

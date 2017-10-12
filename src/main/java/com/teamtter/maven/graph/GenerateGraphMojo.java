@@ -3,10 +3,10 @@ package com.teamtter.maven.graph;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -92,31 +92,42 @@ public class GenerateGraphMojo extends AbstractMojo {
 
 		final ProjectBuildingRequest buildingRequest = new DefaultProjectBuildingRequest(session.getProjectBuildingRequest());
 		buildingRequest.setProject(mavenProject);
-		DependencyNode rootNode = dependencyGraphBuilder.buildDependencyGraph(buildingRequest, new ScopeArtifactFilter(Artifact.SCOPE_TEST), reactorProjects);
+		DependencyNode rootNode = dependencyGraphBuilder.buildDependencyGraph(buildingRequest,
+				null/*new ScopeArtifactFilter(Artifact.SCOPE_TEST)*/,
+				reactorProjects);
 
 		GraphModel model = new GraphModel(mavenProject);
 
 		DependencyNodeVisitor visitor = new DependencyNodeVisitor() {
-
+			private Map<DependencyNode, MavenProject> nodesToProjectCache = new HashMap<>();
+			
 			@Override
 			public boolean visit(DependencyNode node) {
-				Artifact dependency = node.getArtifact();
 				if (node.getParent() != null) {
 					try {
-						buildingRequest.setProject(null);
-						ProjectBuildingResult projectBuildResultFrom = projectBuilder.build(node.getParent().getArtifact(), buildingRequest);
-						MavenProject mavenProjectFrom = projectBuildResultFrom.getProject();
-
-						buildingRequest.setProject(null);
-						ProjectBuildingResult projectBuildResultTo = projectBuilder.build(dependency, buildingRequest);
-						MavenProject mavenProjectTo = projectBuildResultTo.getProject();
+						MavenProject mavenProjectFrom = buildMavenProjectFromNode(buildingRequest, node.getParent());
+						MavenProject mavenProjectTo = buildMavenProjectFromNode(buildingRequest, node);
 
 						model.addDependency(mavenProjectFrom, mavenProjectTo);
 					} catch (ProjectBuildingException e) {
-						log.error("Impossible to construct Project from dependency: {}", dependency.getArtifactId(), e);
+						log.error("Impossible to construct Project from dependency: {}", node.getArtifact().getArtifactId(), e);
 					}
 				}
 				return true;
+			}
+
+			private MavenProject buildMavenProjectFromNode(final ProjectBuildingRequest buildingRequest, DependencyNode node) throws ProjectBuildingException {
+				MavenProject mavenProject;
+				MavenProject existingMavenProject = nodesToProjectCache.get(node);
+				if (existingMavenProject == null) {
+					buildingRequest.setProject(null);
+					ProjectBuildingResult projectBuildResultFrom = projectBuilder.build(node.getArtifact(), buildingRequest);
+					mavenProject = projectBuildResultFrom.getProject();
+					nodesToProjectCache.put(node, mavenProject);	// populate cache
+				} else {
+					mavenProject = existingMavenProject;
+				}
+				return mavenProject;
 			}
 
 			@Override
