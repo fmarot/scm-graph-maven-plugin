@@ -11,17 +11,21 @@ This is helpfull because a not-so-known "feature" of Maven is that every child m
 the scm urls declared in it's parent pom :/
 
 Id does not display the FULL tree because we only got the 'resolved' dependencies. This means that if A->B->C and A->C we 
-will not see B->C in the graph. For more info, refere to the dependency:tree plugin and it's comments regarding the "verbose"
-flag ("To fix we probably need a different DependencyCollector in Aether, which doesn't remove nodes which have already been resolved.").
+will not see B->C in the graph. For more info, refere to the dependency:tree plugin TreeMojo class and it's comments regarding the "verbose"
+flag (refer to this thread: http://maven.40175.n5.nabble.com/Access-the-full-dependency-tree-in-a-Mojo-Maven-3-td5915491.html ).
 
 = TODO
 
-* detect git cycles
-* use special color for specific vertex (for exemple SCMRepo with no scm tag defined should be red ?)
 * add this plugin in all builds and to Jenkins JenkinsFile to be archived on each build
-* test with "Maven Invoker Plugin" instead of the fucked up maven-plugin-testing-harness...
+
+* add project name in generated png file
+* detect git cycles (would require the full dependency tree, see http://maven.40175.n5.nabble.com/Access-the-full-dependency-tree-in-a-Mojo-Maven-3-td5915491.html )
+* use special color for specific vertex:
+	* SCMRepo with no scm tag defined should be red
+* test, test test !!! Test with "Maven Invoker Plugin" instead of the fucked up maven-plugin-testing-harness...
 * we could encapsulate in the graph all the dependencies belonging to a given repo. It would give us
-a classic maven dependency graph, but with dependencies groupped by their repo from origin
+a classic maven dependency graph, but with dependencies groupped by their scm repo of origin
+* use Travis & deploy to Maven Central
 
 = DONE
 * removed some pattern from being displayed in Graph (such as gitlab.xxx-yyy.local:)

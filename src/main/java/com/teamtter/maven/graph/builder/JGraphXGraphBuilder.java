@@ -65,9 +65,11 @@ public class JGraphXGraphBuilder implements GraphBuilder {
 		Map<SCMRepoDecorator, Object> repoToVertex = new HashMap<>();
 		Predicate<SCMRepo> filterOnAcceptedUrlPredicate = buildFilterOnAcceptedUrlPredicate(acceptedUrlFilters);
 		
+		mxConstants.DEFAULT_FONTSIZE = 20;
 		mxGraph graph = new mxGraph();
 		graph.setAutoSizeCells(true);
 		graph.setCellsResizable(true);
+		
 		Object parent = graph.getDefaultParent();
 		graph.getModel().beginUpdate();
 		try {
