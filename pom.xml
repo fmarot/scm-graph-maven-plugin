@@ -3,7 +3,7 @@
 
 	<groupId>com.teamtter.maven</groupId>
 	<artifactId>scm-graph-maven-plugin</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 
 	<packaging>maven-plugin</packaging>
 	<name>scm-graph-maven-plugin Maven Mojo</name>
@@ -49,7 +49,8 @@
 		<connection>scm:git:git@github.com:fmarot/scm-graph-maven-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:fmarot/scm-graph-maven-plugin.git</developerConnection>
 		<url>git@github.com:fmarot/scm-graph-maven-plugin.git</url>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 
 
 	<!-- To deploy to Maven Central, if you are using the Maven deploy plugin, 
