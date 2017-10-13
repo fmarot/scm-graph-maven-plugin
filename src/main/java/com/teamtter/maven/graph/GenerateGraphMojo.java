@@ -89,6 +89,8 @@ public class GenerateGraphMojo extends AbstractMojo {
 		} else {
 			try {
 				generateGraph();
+			} catch (MojoExecutionException e) {
+				throw e;
 			} catch (Exception e) {
 				throw new MojoExecutionException("Unexpected error", e);
 			}
@@ -146,6 +148,12 @@ public class GenerateGraphMojo extends AbstractMojo {
 
 		String buildDirectory = mavenProject.getBuild().getDirectory();
 		File outputPngFile = new File(buildDirectory, pngFileName);
+		File parentDir = outputPngFile.getParentFile();
+		if (parentDir.exists() && !parentDir.isDirectory()) {
+			throw new MojoExecutionException("directory " + buildDirectory + " is not a directory !");
+		} else if (!parentDir.exists()) {
+			parentDir.mkdirs();
+		}
 		graphBuilder.generateImage(model, acceptedUrlFilters, strippedSubstrings, outputPngFile);
 	}
 
