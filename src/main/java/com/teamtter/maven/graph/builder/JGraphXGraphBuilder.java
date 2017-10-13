@@ -39,8 +39,7 @@ public class JGraphXGraphBuilder implements GraphBuilder {
 		}
 	}
 
-	/** public for tests :/  
-	 * @param acceptedUrlFilters */
+	/** public for tests :/  */
 	public static void generateJGraphXImageFromGraph(mxGraph graph, File outputFile) {
 		//		mxGraphComponent mxc = new mxGraphComponent(graph);
 
