@@ -3,7 +3,7 @@
 
 	<groupId>com.teamtter.maven</groupId>
 	<artifactId>scm-graph-maven-plugin</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 
 	<packaging>maven-plugin</packaging>
 	<name>scm-graph-maven-plugin Maven Mojo</name>

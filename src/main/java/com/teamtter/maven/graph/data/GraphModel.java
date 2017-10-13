@@ -99,7 +99,7 @@ public class GraphModel {
 	}
 
 	private static String buildGAVString(MavenProject mavenProject) {
-		return mavenProject.getGroupId() + ":" + mavenProject.getArtifactId() + ":" + mavenProject.getVersion();
+		return mavenProject.getGroupId() + "\r\n" + mavenProject.getArtifactId() + "\r\n" + mavenProject.getVersion();
 	}
 
 	public void addDependency(MavenProject from, MavenProject to) {
