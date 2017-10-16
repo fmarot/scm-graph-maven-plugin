@@ -1,6 +1,5 @@
 :toc: macro
 
-
 toc::[]
 
 
@@ -14,10 +13,19 @@ Id does not display the FULL tree because we only got the 'resolved' dependencie
 will not see B->C in the graph. For more info, refere to the dependency:tree plugin TreeMojo class and it's comments regarding the "verbose"
 flag (refer to this thread: http://maven.40175.n5.nabble.com/Access-the-full-dependency-tree-in-a-Mojo-Maven-3-td5915491.html ).
 
+A call for halp has been made here: http://maven.40175.n5.nabble.com/Access-the-full-dependency-tree-in-a-Mojo-Maven-3-td5915491.html
+
+= Graph library
+
+The graph library used is JGraphX (which is the successor to JGraph) and the user manual is available here: https://jgraph.github.io/mxgraph/docs/manual_javavis.html
+
+This library seems not very Maven friendly (new/recents builds are not made available automatically on Maven central).
+
 = TODO
 
 * add this plugin in all builds and to Jenkins JenkinsFile to be archived on each build
 
+* investigate why some git repo point to themselves whereas some other do not (but on first thought it seems they should)
 * add project name in generated png file
 * detect git cycles (would require the full dependency tree, see http://maven.40175.n5.nabble.com/Access-the-full-dependency-tree-in-a-Mojo-Maven-3-td5915491.html )
 * use special color for specific vertex:

@@ -24,17 +24,17 @@
 		<javadoc.plugin.version>2.7</javadoc.plugin.version>
 		<invoker.plugin.version>2.0.0</invoker.plugin.version>
 
-		<jgrapht.version>1.0.1</jgrapht.version>
 		<slf4j.version>1.7.5</slf4j.version>
 	</properties>
 
-
+<!-- 
 	<licenses>
 		<license>
 			<name>Apache License 2</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
+	
 
 	<developers>
 		<developer>
@@ -44,7 +44,7 @@
 			<organizationUrl>http://github.com/fmarot</organizationUrl>
 		</developer>
 	</developers>
-
+-->
 	<scm>
 		<connection>scm:git:git@github.com:fmarot/scm-graph-maven-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:fmarot/scm-graph-maven-plugin.git</developerConnection>
