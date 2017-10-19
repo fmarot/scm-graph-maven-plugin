@@ -43,10 +43,14 @@ public class JGraphXGraphBuilder implements GraphBuilder {
 		mxGraphLayout layout = new mxHierarchicalLayout(graph);
 		layout.execute(graph.getDefaultParent());
 		BufferedImage image = mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, true, null);
-		try {
-			ImageIO.write(image, "PNG", outputFile);
-		} catch (IOException e) {
-			log.error("Impossible to create image in {}", outputFile, e);
+		if (image == null) {
+			log.error("No generated image. Maybe you have too strong filters and no scm is left in the graph !");
+		} else {
+			try {
+				ImageIO.write(image, "PNG", outputFile);
+			} catch (IOException e) {
+				log.error("Impossible to create image in {}", outputFile, e);
+			}
 		}
 	}
 
