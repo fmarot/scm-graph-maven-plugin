@@ -39,15 +39,9 @@ public class JGraphXGraphBuilder implements GraphBuilder {
 		}
 	}
 
-	/** public for tests :/  */
-	public static void generateJGraphXImageFromGraph(mxGraph graph, File outputFile) {
-		//		mxGraphComponent mxc = new mxGraphComponent(graph);
-
-		graph.getStylesheet().getDefaultEdgeStyle().put(mxConstants.STYLE_NOLABEL, "1");
-
+	private void generateJGraphXImageFromGraph(mxGraph graph, File outputFile) {
 		mxGraphLayout layout = new mxHierarchicalLayout(graph);
 		layout.execute(graph.getDefaultParent());
-
 		BufferedImage image = mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, true, null);
 		try {
 			ImageIO.write(image, "PNG", outputFile);
@@ -63,16 +57,12 @@ public class JGraphXGraphBuilder implements GraphBuilder {
 				.collect(Collectors.toList());
 		Map<SCMRepoDecorator, Object> repoToVertex = new HashMap<>();
 		Predicate<SCMRepo> filterOnAcceptedUrlPredicate = buildFilterOnAcceptedUrlPredicate(acceptedUrlFilters);
-		
-		mxConstants.DEFAULT_FONTSIZE = 20;
-		mxGraph graph = new mxGraph();
-		graph.setAutoSizeCells(true);
-		graph.setCellsResizable(true);
-		
+
+		mxGraph graph = buildGraphWithStyle();
+
 		Object parent = graph.getDefaultParent();
 		graph.getModel().beginUpdate();
 		try {
-
 			// @formatter:off
 			decoratedRepos.stream()
 					.filter(filterOnAcceptedUrlPredicate)
@@ -94,12 +84,26 @@ public class JGraphXGraphBuilder implements GraphBuilder {
 					});
 		// @formatter:on
 		} finally {
-			repoToVertex.values().forEach(vertex ->
-				graph.updateCellSize(vertex)
-			);
-			
+			repoToVertex.values().forEach(vertex -> graph.updateCellSize(vertex));
+
 			graph.getModel().endUpdate();
 		}
+		return graph;
+	}
+
+	private mxGraph buildGraphWithStyle() {
+		mxGraph graph = new mxGraph();
+
+		Map<String, Object> edgeStyle = graph.getStylesheet().getDefaultEdgeStyle();
+		edgeStyle.put(mxConstants.STYLE_NOLABEL, "1");
+
+		Map<String, Object> vertexStyle = graph.getStylesheet().getDefaultVertexStyle();
+		vertexStyle.put(mxConstants.STYLE_FONTFAMILY, "Verdana");
+		vertexStyle.put(mxConstants.STYLE_FONTCOLOR, "Black");
+		vertexStyle.put(mxConstants.STYLE_FONTSIZE, 18);
+
+		graph.setAutoSizeCells(true);	// to be defined BEFORE adding vertices in the graph
+		graph.setCellsResizable(true);
 		return graph;
 	}
 

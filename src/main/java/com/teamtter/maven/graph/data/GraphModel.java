@@ -16,21 +16,22 @@ import lombok.extern.slf4j.Slf4j;
 public class GraphModel {
 	@Getter
 	private List<SCMRepo>	repos	= new ArrayList<>();
-	private MavenProject	mainMavenProject;
 
 	public GraphModel(MavenProject mainMavenProject) {
-		this.mainMavenProject = mainMavenProject;
-
-		SCMRepo repo = initOrGetRepo(mainMavenProject);
+		String scmUrl = computeScm(mainMavenProject);
+		SCMRepo repo = initOrGetRepo(scmUrl);
 		MavenGAV mavenGav = computeMavenGav(mainMavenProject);
+		repo.addDependency(mavenGav);
+	}
+	
+	public GraphModel(String scmUrl, MavenGAV mavenGav) {
+		SCMRepo repo = initOrGetRepo(scmUrl);
 		repo.addDependency(mavenGav);
 	}
 	
 	// TODO: the SCMRepo object should encapsulate the full info (all scm content + GAV Info
 	// so that we can decide later on how we display it...
-	private SCMRepo initOrGetRepo(MavenProject mavenProject) {
-		String scmUrl = computeScm(mavenProject);
-
+	private SCMRepo initOrGetRepo(String scmUrl) {
 		SCMRepo repo = findExistingSCMRepoByScmUrl(scmUrl).orElseGet(() -> {
 			SCMRepo newRepo = new SCMRepo(scmUrl);
 			repos.add(newRepo);
@@ -103,12 +104,14 @@ public class GraphModel {
 	}
 
 	public void addDependency(MavenProject from, MavenProject to) {
-		SCMRepo repoFrom = initOrGetRepo(from);
-		MavenGAV mavenGavFrom = computeMavenGav(from);
+		addDependency(computeScm(from), computeMavenGav(from), computeScm(to), computeMavenGav(to));
+	}
+	
+	public void addDependency(String scmFrom, MavenGAV mavenGavFrom, String scmTo, MavenGAV mavenGavTo) {
+		SCMRepo repoFrom = initOrGetRepo(scmFrom);
 		repoFrom.addDependency(mavenGavFrom);
 
-		SCMRepo repoTo = initOrGetRepo(to);
-		MavenGAV mavenGavTo = computeMavenGav(to);
+		SCMRepo repoTo = initOrGetRepo(scmTo);
 		repoFrom.addDependency(mavenGavTo);
 		
 		if (mavenGavTo.getArtifactId().contains("core-gui")) {
