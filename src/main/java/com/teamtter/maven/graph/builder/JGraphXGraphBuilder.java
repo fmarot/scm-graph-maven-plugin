@@ -12,13 +12,23 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.w3c.dom.Document;
 
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.util.mxCellRenderer;
 import com.mxgraph.util.mxConstants;
+import com.mxgraph.util.mxRectangle;
 import com.mxgraph.view.mxGraph;
 import com.teamtter.maven.graph.data.GraphModel;
 import com.teamtter.maven.graph.data.SCMRepo;
@@ -42,6 +52,25 @@ public class JGraphXGraphBuilder implements GraphBuilder {
 	private void generateJGraphXImageFromGraph(mxGraph graph, File outputFile) {
 		mxGraphLayout layout = new mxHierarchicalLayout(graph);
 		layout.execute(graph.getDefaultParent());
+		createSVGFile(graph, outputFile);
+//		createPNGFile(graph, outputFile);
+	}
+
+	private void createSVGFile(mxGraph graph, File outputFile) {
+		
+		Document image = mxCellRenderer.createSvgDocument(graph, null, 1, Color.WHITE, new mxRectangle(0,0,10000,10000));
+		
+		try {
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			Result output = new StreamResult(outputFile);
+			Source input = new DOMSource(image);
+			transformer.transform(input, output);
+		} catch (TransformerFactoryConfigurationError | TransformerException e) {
+			log.error("", e);
+		}
+	}
+
+	private void createPNGFile(mxGraph graph, File outputFile) {
 		BufferedImage image = mxCellRenderer.createBufferedImage(graph, null, 1, Color.WHITE, true, null);
 		if (image == null) {
 			log.error("No generated image. Maybe you have too strong filters and no scm is left in the graph !");

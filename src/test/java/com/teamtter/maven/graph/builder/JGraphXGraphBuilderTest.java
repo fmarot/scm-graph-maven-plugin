@@ -21,7 +21,11 @@ public class JGraphXGraphBuilderTest {
 		Set<String> strippedSubstrings = new HashSet<>();
 		GraphModel model = buildGraphModel();
 		// WARNING: this test is rather dummy for now...
-		File outputFile = new File("./target/testFile-Helvetica.png");
+		File outputFile = new File("./target/testFile.svg");
+		if (outputFile.exists()) {
+			outputFile.delete();
+		}
+		
 		graphBuilder.generateImage(model, acceptedUrlFilters, strippedSubstrings, outputFile);
 		Assert.assertTrue(outputFile.exists());
 	}
