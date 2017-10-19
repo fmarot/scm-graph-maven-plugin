@@ -41,5 +41,6 @@ a classic maven dependency graph, but with dependencies groupped by their scm re
 * use Travis & deploy to Maven Central
 
 = DONE
+* now we generate a svg instead of a png to work-around centos7/jenkins problem with garbled fonts 
 * removed some pattern from being displayed in Graph (such as gitlab.xxx-yyy.local:)
 * remove JGtaphT and use only JGraphX
