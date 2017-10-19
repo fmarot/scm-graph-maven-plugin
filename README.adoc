@@ -24,7 +24,12 @@ This library seems not very Maven friendly (new/recents builds are not made avai
 = TODO
 
 * add this plugin in all builds and to Jenkins JenkinsFile to be archived on each build
-
+* Optimize the plugin because doubling build time for simple projects is not really acceptable
+* add configuration for a list of tokens wich would produce warning if found as repo. The 
+	use case if when you have a parent pom defining scm info and some child forgot to override
+	so you end up with the scm info of the parent in your graph => WARNINGs could help you detect
+	which dependency have forgotten to declare a correct scm and wrongly rely on their parent's. 
+* remove stacktrace from logs by default => it makes build output unreadable...
 * investigate why some git repo point to themselves whereas some other do not (but on first thought it seems they should)
 * add project name in generated png file
 * detect git cycles (would require the full dependency tree, see http://maven.40175.n5.nabble.com/Access-the-full-dependency-tree-in-a-Mojo-Maven-3-td5915491.html )
