@@ -113,10 +113,6 @@ public class GraphModel {
 
 		SCMRepo repoTo = initOrGetRepo(scmTo);
 		repoFrom.addDependency(mavenGavTo);
-		
-		if (mavenGavTo.getArtifactId().contains("core-gui")) {
-			log.warn("core-gui:: {} --> {}", mavenGavFrom, mavenGavTo);
-		}
 
 		repoFrom.addDependencyTo(repoTo);
 	}
